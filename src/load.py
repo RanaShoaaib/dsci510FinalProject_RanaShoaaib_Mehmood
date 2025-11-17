@@ -39,6 +39,16 @@ def load_movielens_ratings(file_path:Path) -> pd.DataFrame:
     return ratings[["userId", "movieId", "rating"]].pivot(index="userId", columns="movieId", values="rating").sort_index().sort_index(axis=1)
 
 
+def load_movielens_ratings_raw(file_path:Path) -> pd.DataFrame:
+    """
+        Return a dataframe with for MovieLens small ratings in raw form with timestamps.
+    """
+    try:
+        ratings = pd.read_csv(file_path)
+    except:
+        raise FileNotFoundError(f"Could not find {file_path}")
+    return ratings
+
 def load_movielens_links(file_path:Path) -> pd.DataFrame:
     """
         Return a dataframe of links.csv from the MovieLens dataset.
