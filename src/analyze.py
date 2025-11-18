@@ -66,3 +66,21 @@ def generate_plots(meta_merged: pd.DataFrame, ml_ratings: pd.DataFrame):
     plt.tight_layout()
     plt.savefig(outdir / "movie_by_genre.png", dpi=120, bbox_inches="tight")
     plt.close()
+
+
+def imdb_validation(pred_df, metadata_df, model_name: str):
+    """
+        Compute and print the correlation between predicted ratings and IMDb
+        average ratings for a given model.
+    """
+    # Merge predictions with IMDb ratings
+    metadata_df["movieId"] = metadata_df["movieId"].astype(str)
+    merged = pd.merge(left = pred_df, right = metadata_df[["movieId","imdb_averageRating"]], on="movieId", how="left").dropna(subset=["estimate","imdb_averageRating"])
+
+    if merged.empty:
+        print(f"[{model_name}] - No overlapping IMDb ratings found.")
+        return None
+
+    corr = merged["estimate"].corr(merged["imdb_averageRating"])
+    print(f"[{model_name}] - Correlation between predicted rating and IMDb average rating: {corr:.3f}")
+    return corr

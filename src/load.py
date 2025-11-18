@@ -112,7 +112,7 @@ def load_kaggle_metadata(file_path:Path) -> pd.DataFrame:
         the smaller movielens dataset which is required for analysis.
     """
     try:
-        metadata = pd.read_csv(file_path)
+        metadata = pd.read_csv(file_path, low_memory=False)
     except:
         raise FileNotFoundError(f"Could not find {file_path}")
     return metadata

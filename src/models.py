@@ -3,9 +3,9 @@ from surprise.model_selection import train_test_split, GridSearchCV
 import numpy as np
 import pandas as pd
 
-SVD_PARAM_GRID = {"n_factors": [20, 40, 60],
-        "reg_all": [0.05, 0.075, 0.1, 0.25],
-        "lr_all": [0.005, 0.01, 0.025, 0.05]}
+SVD_PARAM_GRID = {"n_factors": [100, 150, 200, 250],
+        "reg_all": [0.05, 0.1, 0.25],
+        "lr_all": [0.01, 0.025, 0.05]}
 
 KNN_PARAM_GRID = {"k": [10, 30, 50, 70],
         "sim_options": {"name": ["cosine", "pearson_baseline"], "user_based": [False]},

@@ -1,10 +1,14 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import pandas as pd
 from surprise import KNNBaseline, SVD
 import load
 import models
 from config import RESULTS_DIR as outdir
 from process import filter_transform_metadata, one_hot_encode_genres, merge_datasets
-from analyze import generate_plots
+from analyze import generate_plots, imdb_validation
+from recommend import compare_model_recommendations, top_n_recommendations
 
 def main():
     # Downloading data
@@ -34,7 +38,7 @@ def main():
 
     # 1. SVD
     best_param, best_score = models.tune_SVD(surprise_data, cv=3)
-    print("\nFor the Matrix Factorization:\n"+"-"*30)
+    print("\n\t\t\t\t\t  For Matrix Factorization (SVD)\n"+"-"*80)
     print(f"Best score: {best_score:.4f}")
     print(f"Best params: {best_param}")
     svd_estimator = SVD(**best_param)
@@ -50,20 +54,18 @@ def main():
 
     # 2. KNN
     best_param, best_score = models.tune_knn_baseline(surprise_data, cv=3)
-    print("\nFor KNNBaseline:\n"+"-"*30)
+    best_param_relevant = {"k": best_param.get("k"), "sim_options": best_param.get("sim_options")}
+    print("\n\t\t\t\t\t\t\tFor KNNBaseline\n"+"-"*80)
     print(f"Best score: {best_score:.4f}")
-    print(f"Best params: {best_param}")
+    print(f"Best params: {best_param_relevant}")
     knn_estimator = KNNBaseline(**best_param)
     knn_estimator.fit(train_data)
     algo, rmse, preds = models.predict_for_test(knn_estimator, test_data)
     print(f"Test RMSE: {rmse:.4f}")
     sim_opts = best_param.get("sim_options", {})
-    sim_name = sim_opts.get("name")
-    user_based = sim_opts.get("user_based")
-    knn_row = {
-        "best_cv_rmse": best_score, "test_rmse": rmse, "k": best_param.get("k"), "sim_name": sim_name, "user_based": user_based,
-        # placeholders for SVD-only params
-        "n_factors": None, "reg_all": None, "lr_all": None}
+    knn_row = {"best_cv_rmse": best_score, "test_rmse": rmse, "k": best_param.get("k"), "sim_name": sim_opts.get("name"), "user_based": sim_opts.get("user_based"),
+            # placeholders for SVD-only params
+            "n_factors": None, "reg_all": None, "lr_all": None}
     knn_results_df = pd.DataFrame([knn_row], index=["KNNBaseline"])
     knn_pred_df = models.predictions_to_dataframe(preds)
     knn_pred_df.to_csv(outdir/"knn_predictions.csv", index=False)
@@ -72,7 +74,16 @@ def main():
     results_df = pd.concat([svd_results_df, knn_results_df], axis=0)
     results_df.to_csv(outdir/"model_results.csv")
 
+    # Checking top-n recommendations of both models for some user
+    user_list = [50,100,200]
+    print("\n\t  Comparison of top-N KNNBaseline and SVD predictions for few users\n" + "-" * 80)
+    for user in user_list:
+        compare_model_recommendations(svd_model=svd_estimator, knn_model=knn_estimator, user_id=user, ratings_df=ml_ratings_raw, metadata_df=meta_merged, n=10)
 
+    # Validation of model predictions against external ratings (imdb)
+    print("\nExternal Validation - Comparison of KNNBaseline/SVD predictions and IMDB Ratings\n"+"-"*80)
+    svd_corr = imdb_validation(svd_pred_df, meta_merged, model_name="SVD")
+    knn_corr = imdb_validation(knn_pred_df, meta_merged, model_name="KNNBaseline")
 
 if __name__ == "__main__":
     main()
