@@ -33,7 +33,7 @@ def generate_plots(meta_merged: pd.DataFrame, ml_ratings: pd.DataFrame):
     # Plot 2): Movies count by release year
     # --------------------------------
     plt.figure(figsize=(10, 6), dpi=120)
-    sns.countplot(meta_merged, x='year')
+    sns.countplot(data=meta_merged, x='year')
     plt.xticks(rotation=90, size=5)
     plt.title("Distribution of Movies by Release Year")
     plt.tight_layout()
@@ -74,8 +74,9 @@ def imdb_validation(pred_df, metadata_df, model_name: str):
         average ratings for a given model.
     """
     # Merge predictions with IMDb ratings
-    metadata_df["movieId"] = metadata_df["movieId"].astype(str)
-    merged = pd.merge(left = pred_df, right = metadata_df[["movieId","imdb_averageRating"]], on="movieId", how="left").dropna(subset=["estimate","imdb_averageRating"])
+    merged = pd.merge(left = pred_df,
+                      right = metadata_df.assign(movieId=metadata_df["movieId"].astype(str))[["movieId", "imdb_averageRating"]],
+                      on="movieId", how="left").dropna(subset=["estimate","imdb_averageRating"])
 
     if merged.empty:
         print(f"[{model_name}] - No overlapping IMDb ratings found.")

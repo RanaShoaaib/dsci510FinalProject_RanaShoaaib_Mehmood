@@ -38,9 +38,10 @@ def main():
 
     # 1. SVD
     best_param, best_score = models.tune_SVD(surprise_data, cv=3)
+    best_param_relevant = {"n_factors": best_param.get("n_factors"), "reg_all": best_param.get("reg_all"), "lr_all": best_param.get("lr_all")}
     print("\n\t\t\t\t\t  For Matrix Factorization (SVD)\n"+"-"*80)
     print(f"Best score: {best_score:.4f}")
-    print(f"Best params: {best_param}")
+    print(f"Best params: {best_param_relevant}")
     svd_estimator = SVD(**best_param)
     svd_estimator.fit(train_data)
     algo, rmse, preds = models.predict_for_test(svd_estimator, test_data)

@@ -1,6 +1,5 @@
 import ast
 import pandas as pd
-import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 
 
@@ -29,7 +28,6 @@ def filter_transform_metadata(df: pd.DataFrame, movie_ids) -> pd.DataFrame:
         - Coerces 'id' → int and filters rows to movie_ids.
         - Parses 'release_date' → datetime and adds 'year'.
         - Coerces ['runtime','budget','revenue'] → numeric.
-        - Drops unnecessary fields ['title','original_language'].
         - Parses 'genres' into 'genre_lst' (list of genre names) and drops 'genres'.
         Returns:
             A cleaned DataFrame sorted by 'id', with columns:
@@ -92,7 +90,7 @@ def merge_datasets(ml_links:pd.DataFrame, meta_with_genres:pd.DataFrame, imdb_ra
 
     # Merge IMDb ratings via imdb_id/tconst
     merged['tconst'] = merged['imdb_id'].str.strip()
-    imdb_ratings['tconst'] = imdb_ratings['tconst'].str.strip().copy()
+    imdb_ratings['tconst'] = imdb_ratings['tconst'].str.strip()
     merged = pd.merge(left=merged, right=imdb_ratings, on='tconst', how='left')
 
     merged = merged.drop(columns=['imdbId', 'tconst'])
