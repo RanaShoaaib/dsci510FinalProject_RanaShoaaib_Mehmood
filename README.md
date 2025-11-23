@@ -13,6 +13,7 @@ This project implements an end-to-end, modular recommender system pipeline inclu
 The repository is organized as follows.  
 Note: `data/` and `results/` are **not tracked in Git** — they are generated automatically when running the project.
 
+```
 project/
 │
 ├── data/                # (auto-created) downloaded datasets
@@ -31,7 +32,7 @@ project/
 │
 ├── requirements.txt
 └── README.md
-
+```
 
 # Data sources
 This project integrates three primary datasets: MovieLens ratings, Kaggle Movies Metadata, and IMDb ratings. These datasets collectively provide user–item interactions, rich movie attributes, and an external benchmark for recommendation evaluation.
@@ -85,6 +86,7 @@ This project is written in Python and relies on the following main packages:
 - `matplotlib`, `seaborn` – exploratory data analysis and visualization  
 - `scikit-learn` – modeling and evaluation (e.g., KNN, metrics)
 - `python-dotenv` – loading environment variables from `.env`
+
 Install all required packages via: pip install -r requirements.txt
 
 
