@@ -1,5 +1,5 @@
 from surprise import Dataset, Reader, SVD, KNNBaseline, accuracy
-from surprise.model_selection import train_test_split, GridSearchCV
+from surprise.model_selection import train_test_split, GridSearchCV, KFold
 import numpy as np
 import pandas as pd
 
@@ -39,7 +39,8 @@ def tune_SVD(data:Dataset, cv:int = 3):
         Returns:    the dictionary of best parameters and
                     best score (float) obtained from cross-validation.
     """
-    gs = GridSearchCV(algo_class=SVD, param_grid=SVD_PARAM_GRID, measures=["rmse"], cv=cv, n_jobs=2)
+    kf = KFold(n_splits=cv, shuffle=True, random_state=42)
+    gs = GridSearchCV(algo_class=SVD, param_grid=SVD_PARAM_GRID, measures=["rmse"], cv=kf, n_jobs=2)
     gs.fit(data)
 
     best_params = gs.best_params["rmse"]
@@ -56,8 +57,8 @@ def tune_knn_baseline(data:Dataset, cv:int=3):
     Returns:    best parameters as a dictionary and
                 best score obtained from cross-validation.
     """
-
-    gs = GridSearchCV(algo_class=KNNBaseline, param_grid=KNN_PARAM_GRID, measures=["rmse"], cv=cv, n_jobs=2)
+    kf = KFold(n_splits=cv, shuffle=True, random_state=42)
+    gs = GridSearchCV(algo_class=KNNBaseline, param_grid=KNN_PARAM_GRID, measures=["rmse"], cv=kf, n_jobs=2)
     gs.fit(data)
 
     best_params = gs.best_params["rmse"]

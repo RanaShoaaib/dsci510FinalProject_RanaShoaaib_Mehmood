@@ -48,8 +48,8 @@ This project integrates three primary datasets: MovieLens ratings, Kaggle Movies
 
 | Model           | CV RMSE | Test RMSE |
 | --------------- | ------- | --------- |
-| **SVD**         | ≈ 0.86  | ≈ 0.858  |
-| **KNNBaseline** | ≈ 0.864 | ≈ 0.86   |
+| **SVD**         | ≈ 0.859 | ≈ 0.858  |
+| **KNNBaseline** | ≈ 0.863 | ≈ 0.86   |
 
 SVD slightly outperforms KNN in predictive accuracy.
 
