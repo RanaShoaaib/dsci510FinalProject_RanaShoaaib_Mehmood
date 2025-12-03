@@ -1,10 +1,50 @@
 import pandas as pd
 import numpy as np
 from surprise import SVD, KNNBaseline
+from load import download_movielens_data, load_movielens_ratings_raw, download_kaggle_data, load_kaggle_metadata, download_imdb_ratings, load_imdb_ratings
 from process import parse_genres, one_hot_encode_genres
 from analyze import imdb_validation
 from models import build_surprise_data, surprise_train_test_split, predict_for_test, predictions_to_dataframe
 from recommend import get_unrated_movies, predict_rating, top_n_recommendations
+
+
+# ---------------------------------------------------------------------
+# load.py tests
+# ---------------------------------------------------------------------
+
+def test_download_and_load_movielens():
+    # Download (use force_download = False to reuse cached copies)
+    dir_path  = download_movielens_data(force_download=True)
+    file_path = dir_path/"ratings.csv"
+
+    df = load_movielens_ratings_raw(file_path)
+    assert df is not None, "MovieLens ratings could not be loaded."
+    assert not df.empty, "MovieLens ratings DataFrame is empty."
+    assert set(["userId", "movieId", "rating"]).issubset(df.columns), "MovieLens ratings missing expected columns."
+
+    print("test_download_and_load_movielens passed.")
+
+def test_download_and_load_kaggle():
+    # Requires API credentials in .env
+    dir_path = download_kaggle_data(force_download=True)
+    file_path = dir_path/"movies_metadata.csv"
+
+    df = load_kaggle_metadata(file_path)
+    assert df is not None, "Kaggle metadata could not be loaded."
+    assert not df.empty, "Kaggle metadata DataFrame is empty."
+    assert set(["id", "release_date", "genres"]).issubset(df.columns), "Loaded kaggle metadata missing expected columns."
+
+    print("test_download_and_load_kaggle passed.")
+
+def test_download_and_load_imdb():
+    path  = download_imdb_ratings(force_download=True)
+
+    df = load_imdb_ratings(path)
+    assert df is not None, "IMDb ratings could not be loaded."
+    assert not df.empty, "IMDb ratings DataFrame is empty."
+    assert set(["tconst", "averageRating", "numVotes"]).issubset(df.columns), "IMDb ratings missing expected columns."
+
+    print("test_download_and_load_imdb passed.")
 
 
 # ---------------------------------------------------------------------
@@ -239,7 +279,13 @@ def test_top_n_recommendations_basic():
 def run_all_tests():
     print("Running tests...\n")
 
+    # load.py
+    test_download_and_load_movielens()
+    test_download_and_load_kaggle()
+    test_download_and_load_imdb()
+
     # process.py
+    print()
     test_parse_genres_basic()
     test_one_hot_encode_genres_basic()
 
@@ -247,10 +293,12 @@ def run_all_tests():
     test_imdb_validation_basic()
 
     # models.py
+    print()
     test_build_surprise_data_and_split()
     test_predict_for_test_and_predictions_to_dataframe()
 
     # recommend.py
+    print()
     test_get_unrated_movies_basic()
     test_predict_rating_basic()
     test_top_n_recommendations_basic()

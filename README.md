@@ -21,6 +21,7 @@ project/
 │
 ├── src/
 │   ├── analysis.ipynb   # Full narrative analysis (EDA, modeling, validation)
+│   ├── .env.example     # This file contains placeholders for required environment variables; rename as .env and insert API details
 │   ├── config.py        # Paths, URLs, environment setup
 │   ├── load.py          # Downloading and loading datasets
 │   ├── process.py       # Cleaning + merging metadata and ratings
